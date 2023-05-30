@@ -1,0 +1,26 @@
+
+version: '3'
+services: 
+    app:
+      image: node
+      volumes:
+      - .:/app
+      links:
+      - neo4j
+      ports:
+      - "3000:3000"
+      working_dir: /app
+      entrypoint: node index.js
+    neo4j:
+      image: neo4j:latest
+      ports:
+      - "7474:7474"
+      - "7687:7687"
+      - "7473:7473"
+      environment:
+        - NEO4J_AUTH=${DB_USERNAME}/${DB_PASSWORD}
+        - NEO4J_dbms_memory_pagecache_size=1G
+        - DB_USERNAME=${DB_USERNAME}
+        - DB_PASSWORD=${DB_PASSWORD}
+      volumes:
+        - ./data:/data 
