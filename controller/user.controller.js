@@ -9,7 +9,7 @@ async function getUsers(req, res, next) {
             'MATCH (n) RETURN n',
         )
         return res.send({
-            result: result
+            result: result.records
         })
     }
     catch (err) {
@@ -28,6 +28,24 @@ async function getUsersWithRelations(req, res, next) {
         )
         return res.send({
             result: result
+        })
+    }
+    catch (err) {
+        return next(err)
+    }
+    finally {
+        await session.close()
+    }
+}
+async function getRelations(req, res, next) {
+    let session;
+    try {
+        session = neo4j().session();
+        const result = await session.run(
+            'MATCH (a:Person) -[r] - (b :Person) RETURN DISTINCT(r)',
+        )
+        return res.send({
+            result: result.records
         })
     }
     catch (err) {
@@ -130,16 +148,23 @@ async function createRelation(req, res, next) {
         session = neo4j().session();
         const { from, to } = req.body;
         const result = await session.run(
-            `MATCH
-            (a:Person),
-            (b:Person)
-            WHERE a.personalId = $from AND b.personalId = $to
+            `
+            MATCH (a:Person)
+            MATCH (b:Person)
+            WHERE elementId(a) = $from AND elementId(b)=$to
             CREATE (a)-[rel:FOLLOW]->(b)
-            RETURN type(rel)`,
-            { from: from, to: to }
+            RETURN rel
+            `
+            // `MATCH
+            // (a:Person),
+            // (b:Person)
+            // WHERE a.personalId = $from AND b.personalId = $to
+            // CREATE (a)-[rel:FOLLOW]->(b)
+            // RETURN type(rel)`
+            ,{ from: from, to: to }
         )
         return res.send({
-            result: result
+            result: result.records
         })
     } catch (err) {
         return next(err)
@@ -156,5 +181,6 @@ module.exports = {
     insertUser,
     deleteAllUsers,
     createRelation,
-    searchUser
+    searchUser,
+    getRelations
 }
