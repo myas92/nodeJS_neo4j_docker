@@ -1,4 +1,13 @@
+Start Project
+## Ubuntu
+```
+sudo apt-get install build-essential
+make
+```
 
+## Windows
+```
+docker
 
 ### Create constraints
 ```bash
