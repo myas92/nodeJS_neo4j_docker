@@ -59,7 +59,6 @@ async function getUsersByLabel(req, res, next) {
     let session;
     try {
         let { label } = req.query;
-        console.log(label)
         session = neo4j().session();
         // Find all nodes with a specific label:
         const result = await session.run(
@@ -81,7 +80,6 @@ async function searchUser(req, res, next) {
     let session;
     try {
         let { name } = req.query;
-        console.log(name)
         session = neo4j().session();
         // Find all nodes with a specific label:
         const result = await session.run(
@@ -129,8 +127,48 @@ async function deleteAllUsers(req, res, next) {
         session = neo4j().session();
         const { name } = req.body;
         const result = await session.run(
-            'MATCH (n) DETACH DELETE n',
-            { name: name }
+            'MATCH (n) DETACH DELETE n'
+        )
+        return res.send({
+            message: "Request done successfully"
+        })
+    } catch (err) {
+        return next(err)
+    }
+    finally {
+        await session.close()
+    }
+}
+async function deleteUserById(req, res, next) {
+    let session;
+    try {
+        let { elementId } = req.params;
+        session = neo4j().session();
+        const { name } = req.body;
+        const result = await session.run(
+            `MATCH (n) where elementId(n)=$elementId
+             DETACH DELETE n`,
+            { elementId: elementId }
+        )
+        return res.send({
+            message: "Request done successfully"
+        })
+    } catch (err) {
+        return next(err)
+    }
+    finally {
+        await session.close()
+    }
+}
+async function deleteRelationshipById(req, res, next) {
+    let session;
+    try {
+        let { elementId } = req.params;
+        session = neo4j().session();
+        const { name } = req.body;
+        const result = await session.run(
+            `MATCH ()-[r]-() WHERE elementId(r)=$elementId DELETE r`,
+            { elementId: elementId }
         )
         return res.send({
             message: "Request done successfully"
@@ -161,7 +199,7 @@ async function createRelation(req, res, next) {
             // WHERE a.personalId = $from AND b.personalId = $to
             // CREATE (a)-[rel:FOLLOW]->(b)
             // RETURN type(rel)`
-            ,{ from: from, to: to }
+            , { from: from, to: to }
         )
         return res.send({
             result: result.records
@@ -180,7 +218,9 @@ module.exports = {
     getUsersByLabel,
     insertUser,
     deleteAllUsers,
+    deleteUserById,
     createRelation,
     searchUser,
-    getRelations
+    getRelations,
+    deleteRelationshipById
 }
