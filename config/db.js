@@ -2,6 +2,7 @@ const neo4jModule = require('neo4j-driver')
 require('dotenv').config()
 let neo4jDriver;
 
+// connect to the neo4j database with username & password
 function configurationNeo4j() {
     try {
         const { DB_URL, DB_USERNAME, DB_PASSWORD } = process.env;
@@ -20,7 +21,7 @@ function configurationNeo4j() {
         console.error("Neo4j Database Error: ", error.message)
     }
 }
-
+// Return Neo4j client
 function neo4j() {
     return neo4jDriver
 }

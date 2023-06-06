@@ -37,24 +37,6 @@ async function getUsersWithRelations(req, res, next) {
         await session.close()
     }
 }
-async function getRelations(req, res, next) {
-    let session;
-    try {
-        session = neo4j().session();
-        const result = await session.run(
-            'MATCH (a:Person) -[r] - (b :Person) RETURN DISTINCT(r)',
-        )
-        return res.send({
-            result: result.records
-        })
-    }
-    catch (err) {
-        return next(err)
-    }
-    finally {
-        await session.close()
-    }
-}
 async function getUsersByLabel(req, res, next) {
     let session;
     try {
@@ -160,57 +142,6 @@ async function deleteUserById(req, res, next) {
         await session.close()
     }
 }
-async function deleteRelationshipById(req, res, next) {
-    let session;
-    try {
-        let { elementId } = req.params;
-        session = neo4j().session();
-        const { name } = req.body;
-        const result = await session.run(
-            `MATCH ()-[r]-() WHERE elementId(r)=$elementId DELETE r`,
-            { elementId: elementId }
-        )
-        return res.send({
-            message: "Request done successfully"
-        })
-    } catch (err) {
-        return next(err)
-    }
-    finally {
-        await session.close()
-    }
-}
-async function createRelation(req, res, next) {
-    let session;
-    try {
-        session = neo4j().session();
-        const { from, to } = req.body;
-        const result = await session.run(
-            `
-            MATCH (a:Person)
-            MATCH (b:Person)
-            WHERE elementId(a) = $from AND elementId(b)=$to
-            CREATE (a)-[rel:FOLLOW]->(b)
-            RETURN rel
-            `
-            // `MATCH
-            // (a:Person),
-            // (b:Person)
-            // WHERE a.personalId = $from AND b.personalId = $to
-            // CREATE (a)-[rel:FOLLOW]->(b)
-            // RETURN type(rel)`
-            , { from: from, to: to }
-        )
-        return res.send({
-            result: result.records
-        })
-    } catch (err) {
-        return next(err)
-    }
-    finally {
-        await session.close()
-    }
-}
 
 module.exports = {
     getUsers,
@@ -219,8 +150,5 @@ module.exports = {
     insertUser,
     deleteAllUsers,
     deleteUserById,
-    createRelation,
     searchUser,
-    getRelations,
-    deleteRelationshipById
 }
