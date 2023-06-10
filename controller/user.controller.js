@@ -6,7 +6,7 @@ async function getUsers(req, res, next) {
         session = neo4j().session();
         // By specifying a pattern with a single node and no labels, all nodes in the graph will be returned
         const result = await session.run(
-            'MATCH (n) RETURN n',
+            'MATCH (n:Person) RETURN n',
         )
         return res.send({
             result: result.records

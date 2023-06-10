@@ -5,6 +5,8 @@ const morgan = require('morgan');
 const cors = require('cors')
 const userRouter = require('./router/user.router');
 const relationRouter = require('./router/relation.router');
+const projectRouter = require('./router/project.router');
+const nodeRouter = require('./router/node.router');
 
 // Call connecting to neo4j database
 let initDatabase = require("./config/db");
@@ -19,6 +21,8 @@ app.use(bodyParser.json({ limit: 10000 }));
 
 app.use("/api/users", userRouter);
 app.use("/api/relations", relationRouter);
+app.use("/api/projects", projectRouter);
+app.use("/api/nodes", nodeRouter);
 
 app.use((err, req, res, next) => {
     console.error(err.message)
