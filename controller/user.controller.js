@@ -58,6 +58,28 @@ async function getUsersByLabel(req, res, next) {
         await session.close()
     }
 }
+async function getUserById(req, res, next) {
+    let session;
+    try {
+        let { elementId } = req.params;
+        session = neo4j().session();
+        // Find all nodes with a specific label:
+        const result = await session.run(
+            `MATCH (n) where elementId(n)=$elementId
+             RETURN n`,
+            { elementId: elementId }
+        )
+        return res.send({
+            result: result.records
+        })
+    }
+    catch (err) {
+        return next(err)
+    }
+    finally {
+        await session.close()
+    }
+}
 async function searchUser(req, res, next) {
     let session;
     try {
@@ -142,13 +164,41 @@ async function deleteUserById(req, res, next) {
         await session.close()
     }
 }
+async function updateUser(req, res, next) {
+    let session;
+    try {
+        let { elementId } = req.params;
+        let { name, personalId } = req.body;
+        session = neo4j().session();
+        const result = await session.run(
+            ` MATCH (n) where elementId(n)=$elementId 
+              SET n.name=$name, n.personalId=$personalId
+              RETURN n
+              `,
+            { elementId: elementId, name, personalId }
+        )
+        const singleRecord = result.records[0]
+        const node = singleRecord.get(0)
+        return res.send({
+            message: "Request done successfully",
+            result: node
+        })
+    } catch (err) {
+        return next(err)
+    }
+    finally {
+        await session.close()
+    }
+}
 
 module.exports = {
     getUsers,
     getUsersWithRelations,
     getUsersByLabel,
+    getUserById,
     insertUser,
     deleteAllUsers,
     deleteUserById,
     searchUser,
+    updateUser,
 }
