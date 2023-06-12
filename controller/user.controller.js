@@ -107,10 +107,10 @@ async function insertUser(req, res, next) {
     let session;
     try {
         session = neo4j().session();
-        const { name, personalId } = req.body;
+        const { name, personalId, team } = req.body;
         const result = await session.run(
-            'CREATE (a:Person {name: $name, personalId: $personalId}) RETURN a',
-            { name: name, personalId: personalId }
+            'CREATE (a:Person {name: $name, personalId: $personalId, team:$team}) RETURN a',
+            { name: name, personalId: personalId, team: team }
         )
 
         const singleRecord = result.records[0]
@@ -168,14 +168,14 @@ async function updateUser(req, res, next) {
     let session;
     try {
         let { elementId } = req.params;
-        let { name, personalId } = req.body;
+        let { name, personalId, team } = req.body;
         session = neo4j().session();
         const result = await session.run(
             ` MATCH (n) where elementId(n)=$elementId 
-              SET n.name=$name, n.personalId=$personalId
+              SET n.name=$name, n.personalId=$personalId, n.team=$team
               RETURN n
               `,
-            { elementId: elementId, name, personalId }
+            { elementId: elementId, name, personalId, team }
         )
         const singleRecord = result.records[0]
         const node = singleRecord.get(0)
