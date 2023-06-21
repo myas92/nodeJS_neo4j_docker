@@ -1,3 +1,5 @@
 node_modules
 .vscode
 data
+VMs.js
+VMsInfo.js

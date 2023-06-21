@@ -27,7 +27,7 @@ Tutorial: https://neo4j.com/docs/cypher-manual/current/indexes-for-full-text-sea
 
 ```bash
 # Create Index
-CREATE FULLTEXT INDEX person_and_project FOR (n:Person|Project) ON EACH [n.name, n.personalId ,n.description]
+CREATE FULLTEXT INDEX person_and_project FOR (n:Person|Project|VirtualMachine) ON EACH [n.name, n.personalId ,n.description]
 
 # Drop index
 DROP INDEX person_and_project
@@ -41,3 +41,7 @@ RETURN node, score
 CALL db.index.fulltext.queryNodes("person_and_project", "*y*") YIELD node, score
 RETURN node, score
 ```
+
+
+# Debug Node.js Container
+https://itnext.io/how-to-debug-node-js-inside-docker-8f9be8abdbb4

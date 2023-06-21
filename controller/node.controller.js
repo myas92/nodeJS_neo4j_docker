@@ -6,7 +6,8 @@ async function getNodes(req, res, next) {
         session = neo4j().session();
         // By specifying a pattern with a single node and no labels, all nodes in the graph will be returned
         const result = await session.run(
-            'MATCH (n) RETURN n',
+            // 'MATCH (n) RETURN n LIMIT 100',
+            'MATCH (n:Person | Project ) RETURN n LIMIT 50',
         )
         return res.send({
             result: result.records
@@ -51,7 +52,7 @@ async function searchNode(req, res, next) {
             `CALL db.index.fulltext.queryNodes("person_and_project", "*${input}*") 
              YIELD node, score
              RETURN node, score`);
-            console.log(result)
+        console.log(result)
         return res.send({
             result: result.records
         })
@@ -69,14 +70,27 @@ async function getNodeWithRelationsById(req, res, next) {
     let session;
     try {
         let { elementId, deepId } = req.params;
+        let { nodeType } = req.query;
+        let result;
         session = neo4j().session();
         // Find all nodes with a specific label:
-        const result = await session.run(
-            `MATCH (a)-[r*1..${deepId}]-(b)
+        if (nodeType === 'VirtualMachine') {
+             result = await session.run(
+                `MATCH (a)-[r*1..${deepId}]-(b)
+             where elementId(a)=$elementId AND NOT b:Project
+             RETURN r, a, b`,
+                { elementId: elementId }
+            )
+        }
+        else {
+             result = await session.run(
+                `MATCH (a)-[r*1..${deepId}]-(b)
              where elementId(a)=$elementId
              RETURN r, a, b`,
-            { elementId: elementId }
-        )
+                { elementId: elementId }
+            )
+        }
+
         return res.send({
             result: result.records
         })
@@ -116,5 +130,5 @@ module.exports = {
     deleteNodeById,
     searchNode,
     getNodeWithRelationsById,
-    getNodeById
+    getNodeById,
 }
