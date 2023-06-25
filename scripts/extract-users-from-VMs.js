@@ -1,7 +1,7 @@
 const { VMs } = require("./VMs");
-const { getUsersVM } = require("./request-users-vm");
+const { getUsersVM } = require("./request");
 const fs = require('fs');
-const windowsQuery = 'system_info_output'
+const windowsQuery = 'user_info_output'
 const extractUsersFromVMs = async () => {
     try{
         let usersInfo=[];

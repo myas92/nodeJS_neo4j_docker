@@ -4,3 +4,4 @@ data
 VMs.js
 VMsInfo.js
 request.js
+.env
