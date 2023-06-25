@@ -1,7 +1,7 @@
 const { VMs } = require("./VMs");
 const { getUsersVM } = require("./request-users-vm");
 const fs = require('fs');
-const windowsQuery = 'user_info_output'
+const windowsQuery = 'system_info_output'
 const extractUsersFromVMs = async () => {
     try{
         let usersInfo=[];
@@ -12,30 +12,30 @@ const extractUsersFromVMs = async () => {
             let os;
             
             if (result.data.result.length == 0) {
-                // result = await getUsersVM(hostname, windowsQuery);
-                result = {
-                    "status": "success",
-                    "data": {
-                        "resultType": "vector",
-                        "result": [
-                            {
-                                "metric": {
-                                    "IP": "192.168.48.201",
-                                    "OS": "Windows Server 2019 Standard",
-                                    "Users": "mourche ## Part.JitsiAdmin ## Part-MySSO-Admin ## Administrator ## Enterprise Admins ## Domain Admins ## mohammadali.farajian ## hamed.saadati ## mahdi.esmaeeli ## Part-MySSO-Admin ## zahra.parham ## arash.ghavidast ## alireza.tajalli ## hamidreza.amini ## khadijeh.shokati ## Administrator ## khadijeh.shokati ## hamidreza.amini ## alireza.tajalli ## arash.ghavidast ## kerioadmin ## hamed.saadati ## fatemeh.moradi ## rouhbakhsh ## mohammadali.farajian ## veeam-appaware ## admanager ## Horizon-domain-user",
-                                    "__name__": "system_info_output",
-                                    "host": "ADDC-19-net.part3.psg.network",
-                                    "instance": "192.168.48.201:9273",
-                                    "job": "virtual-machines"
-                                },
-                                "value": [
-                                    1687173385.857,
-                                    "10"
-                                ]
-                            }
-                        ]
-                    }
-                }
+                result = await getUsersVM(hostname, windowsQuery);
+                // result = {
+                //     "status": "success",
+                //     "data": {
+                //         "resultType": "vector",
+                //         "result": [
+                //             {
+                //                 "metric": {
+                //                     "IP": "192.168.48.201",
+                //                     "OS": "Windows Server 2019 Standard",
+                //                     "Users": "mourche ## Part.JitsiAdmin ## Part-MySSO-Admin ## Administrator ## Enterprise Admins ## Domain Admins ## mohammadali.farajian ## hamed.saadati ## mahdi.esmaeeli ## Part-MySSO-Admin ## zahra.parham ## arash.ghavidast ## alireza.tajalli ## hamidreza.amini ## khadijeh.shokati ## Administrator ## khadijeh.shokati ## hamidreza.amini ## alireza.tajalli ## arash.ghavidast ## kerioadmin ## hamed.saadati ## fatemeh.moradi ## rouhbakhsh ## mohammadali.farajian ## veeam-appaware ## admanager ## Horizon-domain-user",
+                //                     "__name__": "system_info_output",
+                //                     "host": "ADDC-19-net.part3.psg.network",
+                //                     "instance": "192.168.48.201:9273",
+                //                     "job": "virtual-machines"
+                //                 },
+                //                 "value": [
+                //                     1687173385.857,
+                //                     "10"
+                //                 ]
+                //             }
+                //         ]
+                //     }
+                // }
                 currUsers = result.data.result[0].metric.Users;
                 currUsers = currUsers.split(/(?:\s##\s)/);
                 currUsers = [...new Set(currUsers)];

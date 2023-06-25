@@ -87,7 +87,7 @@ async function searchUser(req, res, next) {
         session = neo4j().session();
         // Find all nodes with a specific label:
         const result = await session.run(
-            `MATCH (:Person {name: '${name}'})--(p:Person)
+            `MATCH (p:Person {name: '${name}'})
              RETURN p`)
 
         return res.send({
@@ -109,7 +109,11 @@ async function insertUser(req, res, next) {
         session = neo4j().session();
         const { name, personalId, team } = req.body;
         const result = await session.run(
-            'CREATE (a:Person {name: $name, personalId: $personalId, team:$team}) RETURN a',
+            // 'MERGE (a:Person {name: $name, personalId: $personalId, team:$team}) RETURN a',
+            `MERGE (p:Person {name: $name})
+             ON MATCH
+                SET  p.personalId=$personalId, p.team=$team
+            RETURN p`,
             { name: name, personalId: personalId, team: team }
         )
 
