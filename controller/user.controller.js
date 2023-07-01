@@ -6,7 +6,7 @@ async function getUsers(req, res, next) {
         session = neo4j().session();
         // By specifying a pattern with a single node and no labels, all nodes in the graph will be returned
         const result = await session.run(
-            'MATCH (n:Person) RETURN n',
+            'MATCH (n) RETURN n',
         )
         return res.send({
             result: result.records
@@ -58,28 +58,6 @@ async function getUsersByLabel(req, res, next) {
         await session.close()
     }
 }
-async function getUserById(req, res, next) {
-    let session;
-    try {
-        let { elementId } = req.params;
-        session = neo4j().session();
-        // Find all nodes with a specific label:
-        const result = await session.run(
-            `MATCH (n) where elementId(n)=$elementId
-             RETURN n`,
-            { elementId: elementId }
-        )
-        return res.send({
-            result: result.records
-        })
-    }
-    catch (err) {
-        return next(err)
-    }
-    finally {
-        await session.close()
-    }
-}
 async function searchUser(req, res, next) {
     let session;
     try {
@@ -87,7 +65,7 @@ async function searchUser(req, res, next) {
         session = neo4j().session();
         // Find all nodes with a specific label:
         const result = await session.run(
-            `MATCH (p:Person {name: '${name}'})
+            `MATCH (:Person {name: '${name}'})--(p:Person)
              RETURN p`)
 
         return res.send({
@@ -107,14 +85,10 @@ async function insertUser(req, res, next) {
     let session;
     try {
         session = neo4j().session();
-        const { name, personalId, team } = req.body;
+        const { name, personalId } = req.body;
         const result = await session.run(
-            // 'MERGE (a:Person {name: $name, personalId: $personalId, team:$team}) RETURN a',
-            `MERGE (p:Person {name: $name})
-             ON MATCH
-                SET  p.personalId=$personalId, p.team=$team
-            RETURN p`,
-            { name: name, personalId: personalId, team: team }
+            'CREATE (a:Person {name: $name, personalId: $personalId}) RETURN a',
+            { name: name, personalId: personalId }
         )
 
         const singleRecord = result.records[0]
@@ -168,41 +142,13 @@ async function deleteUserById(req, res, next) {
         await session.close()
     }
 }
-async function updateUser(req, res, next) {
-    let session;
-    try {
-        let { elementId } = req.params;
-        let { name, personalId, team } = req.body;
-        session = neo4j().session();
-        const result = await session.run(
-            ` MATCH (n) where elementId(n)=$elementId 
-              SET n.name=$name, n.personalId=$personalId, n.team=$team
-              RETURN n
-              `,
-            { elementId: elementId, name, personalId, team }
-        )
-        const singleRecord = result.records[0]
-        const node = singleRecord.get(0)
-        return res.send({
-            message: "Request done successfully",
-            result: node
-        })
-    } catch (err) {
-        return next(err)
-    }
-    finally {
-        await session.close()
-    }
-}
 
 module.exports = {
     getUsers,
     getUsersWithRelations,
     getUsersByLabel,
-    getUserById,
     insertUser,
     deleteAllUsers,
     deleteUserById,
     searchUser,
-    updateUser,
 }

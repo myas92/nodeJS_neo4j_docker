@@ -6,7 +6,7 @@ async function getRelations(req, res, next) {
     try {
         session = neo4j().session();
         const result = await session.run(
-            'MATCH (a) -[r] - (b) RETURN DISTINCT(r)',
+            'MATCH (a:Person) -[r] - (b :Person) RETURN DISTINCT(r)',
         )
         return res.send({
             result: result.records
@@ -44,16 +44,15 @@ async function createRelation(req, res, next) {
     let session;
     try {
         session = neo4j().session();
-        const { from, to, meta, label } = req.body;
-        const { description, level } = meta;
+        const { from, to } = req.body;
         const result = await session.run(
             `
-            MATCH (a)
-            MATCH (b)
+            MATCH (a:Person)
+            MATCH (b:Person)
             WHERE elementId(a) = $from AND elementId(b)=$to
-            CREATE (a)-[rel:FOLLOW {label: $label, description: $description, level:$level}]->(b)
+            CREATE (a)-[rel:FOLLOW]->(b)
             RETURN rel
-            `, { from: from, to: to, label, description, level }
+            `,{ from: from, to: to }
         )
         return res.send({
             result: result.records

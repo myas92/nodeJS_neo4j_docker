@@ -8,9 +8,8 @@ services:
       - neo4j
       ports:
       - "3000:3000"
-      - "9229:9229"
       working_dir: /app
-      command: node --inspect=0.0.0.0:9229 index.js 3000
+      entrypoint: node index.js
     neo4j:
       image: neo4j:latest # Pull neo4j image
       ports:
